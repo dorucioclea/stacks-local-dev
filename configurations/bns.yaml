@@ -1,12 +1,12 @@
 version: '3'
 services:
   alpine:
-    image: alpine
+    build:
+      context: provisioning/bns
+      dockerfile: Dockerfile
     container_name: bns_data
-    working_dir: /srv
     volumes:
       - ../persistent-data/bns-data:/bns-data
-      - ../scripts:/scripts
     env_file:
       - ../.env
-    command: sh -c "/scripts/setup-bns.sh"
+    command:  sh -c ./setup-bns.sh
