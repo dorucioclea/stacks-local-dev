@@ -4,6 +4,7 @@ services:
     image: blockstack/stacks-blockchain:feat-miner-control
     volumes:
       - ./private-testnet:/src/stacks-node
+      # - ../persistent-data/stacks-node:/root/stacks-node/data
   explorer:
     image: blockstack/explorer:latest
     container_name: explorer
@@ -22,9 +23,10 @@ services:
     restart: on-failure
     volumes:
       - ./private-testnet:/etc/bitcoin
+      - ../persistent-data/bitcoin:/root/.bitcoin
     expose:
       - 18443
-      - 28444
+      - 18444
     environment:
       - DYNAMIC_GENESIS_TIMESTAMP=1
       - RUST_BACKTRACE=1
