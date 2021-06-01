@@ -8,6 +8,7 @@ txindex=1
 listen=1
 rpcserialversion=0
 rpcworkqueue=100
+maxmempool=256
 
 [regtest]
 bind=0.0.0.0:18444
