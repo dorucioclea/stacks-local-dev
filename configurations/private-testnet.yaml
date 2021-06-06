@@ -20,21 +20,31 @@ services:
       - 3000:3000
     networks:
       - stacks-blockchain
-  bitcoin:
-    image: blockstack/bitcoind:puppet-chain
-    container_name: bitcoin
-    restart: on-failure
-    volumes:
-      - ./private-testnet:/etc/bitcoin
-      - ../persistent-data/bitcoin:/root/.bitcoin
-    # expose:
-    #   - 18443
-    #   - 18444
+  bitcoind:
+    build:
+      context: ./stacks-blockchain/bitcoin
     ports:
       - "18443:18443"
       - "18444:18444"
-    environment:
-      - DYNAMIC_GENESIS_TIMESTAMP=1
-      - RUST_BACKTRACE=1
+    command: 
+      -chain=regtest
+      -disablewallet=0
+      -printtoconsole
+      -txindex=1
+      -server=1
+      -rpcallowip=0.0.0.0/0
+      -rpcbind=0.0.0.0
+      -rpcuser=blockstack
+      -rpcpassword=blockstack
     networks:
       - stacks-blockchain
+  bitcoind-fill-faucet:
+    image: "byrnedo/alpine-curl"
+    depends_on:
+      - bitcoind
+    restart: on-failure
+    command: |
+      -f -u blockstack:blockstack --data-binary '{"jsonrpc": "1.0", "id":"c", "method": "generatetoaddress", "params": [110, "mrzLDS7LT3otAnpiRWGYkWipdnAZJaXAZQ"] }' -H 'content-type: text/plain;' http://bitcoind:18443/
+    networks:
+      - stacks-blockchain
+
