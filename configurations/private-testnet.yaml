@@ -1,13 +1,18 @@
 version: "3"
 services:
   stacks-node-follower:
-    image: blockstack/stacks-blockchain:feat-miner-control
-    volumes:
-      - ./private-testnet:/src/stacks-node
-      # - ../persistent-data/stacks-node:/root/stacks-node/data
+    build:
+      context: ./stacks-blockchain/docker
+    command: stacks-node start --config=/app/config/Config.toml
+    restart: on-failure
     environment:
-      BLOCKSTACK_USE_TEST_GENESIS_CHAINSTATE: 1
-      NOP_BLOCKSTACK_DEBUG: 1
+      STACKS_EVENT_OBSERVER: stacks-blockchain-api:3700
+      XBLOCKSTACK_DEBUG: 1
+      RUST_BACKTRACE: 1
+    volumes:
+      - ./private-testnet/:/app/config
+    depends_on:
+      - bitcoind-fill-faucet
   explorer:
     image: blockstack/explorer:latest
     container_name: explorer
