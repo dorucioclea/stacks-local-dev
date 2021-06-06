@@ -6,7 +6,7 @@ faucet_address = "n2pGfZaAVztWqFzuy8iLS3VSuHB2SimWUR"
 bitcoind_rpc_host = "0.0.0.0:18443"
 bitcoind_rpc_user = "blockstack"
 bitcoind_rpc_pass = "blockstacksystem"
-genesis_timestamp = 1588615296
+genesis_timestamp = 1590765126
 whitelisted_rpc_calls = [
     "listunspent",
     "listwallets",
