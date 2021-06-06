@@ -104,10 +104,6 @@ docker_up() {
 		fi
 	fi
 	[[ ! -f "./configurations/${NETWORK}/Config.toml" ]] && cp ./configurations/${NETWORK}/Config.toml.sample ./configurations/${NETWORK}/Config.toml
-	if [[ ${NETWORK} == "private-testnet" ]]; then
-		[[ ! -f "./configurations/${NETWORK}/puppet-chain.toml" ]] && cp ./configurations/${NETWORK}/puppet-chain.toml.sample ./configurations/${NETWORK}/puppet-chain.toml
-		[[ ! -f "./configurations/${NETWORK}/bitcoin.conf" ]] && cp ./configurations/${NETWORK}/bitcoin.conf.sample ./configurations/${NETWORK}/bitcoin.conf
-	fi
 	PARAM="-d"
 	run_docker
 }
@@ -148,6 +144,10 @@ case ${ACTION} in
 		;;
 	upgrade|pull)
 		ACTION="pull"
+		run_docker
+		;;
+	build)
+		ACTION="build"
 		run_docker
 		;;
 	reset)
