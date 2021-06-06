@@ -2,32 +2,33 @@ version: "3"
 services:
   stacks-node-follower:
     build:
-      context: ./stacks-blockchain/docker
+      context: ./Dockerfiles/stacks-blockchain
     command: stacks-node start --config=/app/config/Config.toml
     restart: on-failure
     environment:
-      STACKS_EVENT_OBSERVER: stacks-blockchain-api:3700
+      STACKS_EVENT_OBSERVER: stacks-node-api:3700
       XBLOCKSTACK_DEBUG: 1
       RUST_BACKTRACE: 1
     volumes:
       - ./private-testnet/:/app/config
     depends_on:
       - bitcoind-fill-faucet
+    networks:
+    - stacks-blockchain
   explorer:
-    image: blockstack/explorer:latest
+    image: blockstack/explorer
     container_name: explorer
     environment:
-      - NEXT_PUBLIC_MAINNET_API_SERVER=http://stacks-node-api.stacks-blockchain:3999
-      - NEXT_PUBLIC_TESTNET_API_SERVER=http://stacks-node-api.stacks-blockchain:3399
       - MOCKNET_API_SERVER=http://localhost:3999
-      - TESTNET_API_SERVER=http://localhost:3999
     ports:
       - 3000:3000
+    depends_on: 
+      - stacks-node-api
     networks:
       - stacks-blockchain
-  bitcoind:
+  bitcoin:
     build:
-      context: ./stacks-blockchain/bitcoin
+      context: ./Dockerfiles/bitcoin
     ports:
       - "18443:18443"
       - "18444:18444"
@@ -46,10 +47,10 @@ services:
   bitcoind-fill-faucet:
     image: "byrnedo/alpine-curl"
     depends_on:
-      - bitcoind
+      - bitcoin
     restart: on-failure
     command: |
-      -f -u blockstack:blockstack --data-binary '{"jsonrpc": "1.0", "id":"c", "method": "generatetoaddress", "params": [110, "mrzLDS7LT3otAnpiRWGYkWipdnAZJaXAZQ"] }' -H 'content-type: text/plain;' http://bitcoind:18443/
+      -f -u blockstack:blockstack --data-binary '{"jsonrpc": "1.0", "id":"c", "method": "generatetoaddress", "params": [110, "mrzLDS7LT3otAnpiRWGYkWipdnAZJaXAZQ"] }' -H 'content-type: text/plain;' http://bitcoin:18443/
     networks:
       - stacks-blockchain
 
