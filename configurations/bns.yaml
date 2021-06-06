@@ -2,7 +2,7 @@ version: '3'
 services:
   alpine:
     build:
-      context: provisioning/bns
+      context: Dockerfiles/bns
       dockerfile: Dockerfile
     container_name: bns_data
     volumes:
