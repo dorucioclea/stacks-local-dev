@@ -1,28 +1,20 @@
-FROM blockstack/stacks-blockchain as builder
-FROM alpine
-ARG BTC_URL="https://github.com/blockstackpbc/bitcoin-docker/releases/download/0.20.99.0.0/musl-v0.20.99.0.0.tar.gz"
-WORKDIR /
-COPY --from=builder /bin/puppet-chain /bin/
-COPY ./docker-entrypoint.sh /docker-entrypoint.sh
+FROM blockstack/stacks-blockchain:2.0.11.0.0-stretch as build
 
-RUN apk add --update \
-    curl \
-    gnupg \
-    boost-system \
-    boost-filesystem \
-    boost-thread \
-    boost-chrono \
-    libevent \
-    libzmq \
-    libgcc \
-    tini \
-    jq \
-    && curl -L -o /bitcoin.tar.gz ${BTC_URL} \
-    && tar -xzvf /bitcoin.tar.gz \
-    && mkdir -p /root/.bitcoin \
-    && mv /bitcoin-*/bin/* /usr/local/bin/ \
-    && rm -rf /bitcoin-*
-RUN chmod +x /docker-entrypoint.sh
+FROM debian:stretch
 
-ENTRYPOINT ["/sbin/tini", "--"]
-CMD [ "/docker-entrypoint.sh"]
+RUN apt-get update && \
+    apt-get install dos2unix && \
+    apt-get clean
+
+COPY wait-for-it.sh /bin/wait-for-it.sh
+RUN dos2unix /bin/wait-for-it.sh
+RUN chmod +x /bin/wait-for-it.sh
+
+COPY docker-entrypoint.sh /bin/
+RUN dos2unix /bin/docker-entrypoint.sh
+RUN chmod +x /bin/docker-entrypoint.sh
+
+COPY --from=build /bin/stacks-node /bin/
+
+ENTRYPOINT ["/bin/docker-entrypoint.sh"]
+CMD ["stacks-node"]
